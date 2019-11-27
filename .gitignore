@@ -1,0 +1,10 @@
+*.gif
+*.bat
+*.log
+*.pdf
+*.png
+*.svg
+*.db
+*.gz
+*.aux
+transformer_selection.tex

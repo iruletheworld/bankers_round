@@ -1,0 +1,80 @@
+\documentclass[tikz, border=0pt, 12pt, convert,
+convert={
+	outext=.svg,
+	command=\unexpanded{
+			pdf2svg \infile\space \outfile\space all
+			&& pdftocairo -r 300 -png \infile\space
+		}
+}]{standalone}
+\usepackage{xeCJK}
+% \setCJKmainfont{Source Han Serif TC}
+\setCJKmainfont{Source Han Sans TC}
+\setCJKsansfont{Source Han Sans TC}
+
+\usepackage{scalefnt}
+\usepackage{lmodern}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usetikzlibrary{shapes.geometric, arrows, positioning, calc, arrows.meta}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered,  text=white, draw=black, fill=colorStarstop]
+
+% process
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, text=white, draw=black, fill=colorPro]
+
+% decision
+\tikzstyle{decision}=[diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black , fill=colorDec]
+
+\usetikzlibrary{positioning}
+
+\tikzset{
+	subprocess/.style = {rectangle, draw=black, semithick, fill=orange!30,
+		minimum width=#1, minimum height=1cm, inner xsep=3mm, % <-- changed
+		text width =\pgfkeysvalueof{/pgf/minimum width}-2*\pgfkeysvalueof{/pgf/inner xsep},
+		align=flush center,
+		path picture={\draw
+			([xshift =2mm] \ppbb.north west) -- ([xshift= 2mm] \ppbb.south west)
+			([xshift=-2mm] \ppbb.north east) -- ([xshift=-2mm] \ppbb.south east);
+		},
+	},
+	subprocess/.default = 24mm % <-- added
+}% end of tikzset
+
+% comment
+\tikzstyle{comment}=[dashed, draw=black, fill=gray!10, minimum width=3cm, minimum height=1cm, text centered]
+
+\tikzstyle{docstring}=[draw=orange, fill=white, minimum width=50mm, text width=80mm, minimum height=1cm]
+
+% arrows
+\tikzstyle{arrow} = [ultra thick,->,>=stealth, line width=1.5mm]
+\tikzstyle{arrow_med} = [thick,->,>=stealth, line width=1mm]
+
+% comment
+\tikzstyle{comment}=[dashed, draw=black, fill=gray!10, minimum width=3cm, minimum height=1cm, text centered]
+
+\tikzstyle{docstring}=[draw=orange, fill=white, minimum width=50mm, text width=80mm, minimum height=1cm]
+
+% arrows
+\tikzstyle{arrow} = [ultra thick,->,>=stealth, line width=1.5mm]
+
+\definecolor{colorStarstop}{RGB}{174, 23, 21}
+\definecolor{colorPro}{RGB}{0, 175, 121}
+\definecolor{colorDec}{RGB}{255, 192, 0}
+\definecolor{colorYes}{RGB}{51, 153, 51}
+\definecolor{colorNo}{RGB}{255, 0, 0}
+\definecolor{forestGreen}{RGB}{44, 180, 44}
+\definecolor{paleBlue}{RGB}{102, 153, 255}
+
+\begin{document}
+
+	\scalefont{1.0}
+
+	\input{./tikz_pic/bankers_round_wiki_cht.tex}
+	\input{./tikz_pic/bankers_round_wiki_chs.tex}
+	\input{./tikz_pic/bankers_round_wiki_en.tex}
+
+	\input{./tikz_pic/bankers_round_sim_cht.tex}
+	\input{./tikz_pic/bankers_round_sim_chs.tex}
+	\input{./tikz_pic/bankers_round_sim_en.tex}
+
+\end{document}

@@ -1,0 +1,96 @@
+\begin{tikzpicture}[baseline=(current bounding box.north), scale=1.0, every node/.style={scale=1}]
+
+		\matrix[column sep=20mm, row sep=10mm]
+		{
+			% start
+			&
+			&
+			& \node (start)[startstop]{開始};
+			& \\
+
+			% round to nearest, tie to even
+			&
+			&
+			& \node (pBankersRound)[process, text width=50mm]{四捨六入五留雙 \\ （亦稱作“銀行家數值修約”）};
+			& \node (cBankersRound)[comment, text width=60mm]{\textcolor{red}{不要使用Python自帶的“round()”函數。應使用“decimal”模塊。}};
+			& \\
+
+			% round to nearest, tie to even
+			&
+			&
+			& \node (pRound2Nth)[process, text width=40mm]{保留$n$位數字};
+			& \node (expRound2Nth)[comment, text width=60mm]{例：保留兩位數字};
+			& \\
+
+			&
+			&
+			& \node (pTims10N)[process, text width=40mm]{將輸入數字乘以$10^n$};
+			& \\
+
+			&
+			& \node (pNoRound)[process, text width=40mm]{不需要修約};
+			& \node (decNP1Zero)[decision, text width=25mm]{新數字是否爲整數？};
+			& \\
+
+			&
+			& \node (pRoundDown)[process, text width=40mm]{舍位};
+			& \node (decNP1)[decision, text width=30mm]{新數字的小數部分是？};
+			& \node (pRoundUp)[process, text width=40mm]{進位};
+			& \\
+
+			&
+			&
+			& \node (decNP2)[decision, text width=30mm]{新數字的整數部分是否爲偶？};
+			& \\
+
+			% end
+			&
+			&
+			& \node (end)[startstop]{結束};
+			& \\
+		};
+
+		\node(expNoRound)[comment, yshift=25mm, text width=40mm] at (pNoRound){例： $1.250 \Rightarrow 125.0$ \\ 結果 $= 1.25$};
+
+		\node(expNP1Big)[comment, xshift=0mm, yshift=25mm, text width=40mm] at (pRoundUp) {例： \\ $1.2551 \Rightarrow 125.51$ \\ $0.51 > 0.5$ \\ 結果 $= 1.26$};
+		\node(expNP1Small)[comment, xshift=0mm, yshift=25mm, text width=40mm] at (pRoundDown) {例： \\ $1.2541 \Rightarrow 125.41$ \\ $0.41 < 0.5$ \\ 結果 $= 1.25$};
+
+		\node(expNP1_2_odd)[comment, xshift=45mm, yshift=25mm, text width=40mm] at (decNP2) {例： \\ $1.2550 \Rightarrow 125.50$ \\ $125$爲\textcolor{red}{奇} \\ 結果 $= 1.26$};
+		\node(expNP1_2_even)[comment, xshift=-43mm, yshift=25mm, text width=40mm] at (decNP2) {例： \\ $1.2450 \Rightarrow 124.50$ \\ $124$爲\textcolor{colorYes}{偶} \\ 結果 $= 1.24$};
+
+
+		% 拐弯用
+		\coordinate[left of=pRoundDown, xshift=-20mm] (dummy1);
+		\coordinate[right of=pRoundUp, xshift=20mm] (dummy2);
+
+		% lines and arrows
+		\draw[arrow](start) -- (pBankersRound);
+		\draw[arrow](pBankersRound) -- (pRound2Nth);
+		\draw[arrow](pRound2Nth) -- (pTims10N);
+		\draw[arrow](pTims10N) -- (decNP1Zero);
+
+		\draw[arrow, color=colorYes](decNP1Zero)node[anchor=south, xshift=-25mm, yshift=1mm]{是} -- (pNoRound);
+		\draw[arrow, color=colorNo](decNP1Zero)node[anchor=north, xshift=5mm, yshift=-20mm]{否} -- (decNP1);
+
+		\draw[arrow](pNoRound) -| (dummy1) |- (end);
+
+		\draw[arrow, color=colorYes](decNP1)node[anchor=south, xshift=-32mm, yshift=1mm]{小於0.5} -- (pRoundDown);
+		\draw[arrow, color=colorNo](decNP1)node[anchor=south, xshift=34mm, yshift=1mm]{大於0.5} -- (pRoundUp);
+		\draw[arrow](decNP1)node[anchor=north, xshift=12mm, yshift=-23mm]{等於0.5} -- (decNP2);
+
+		\draw[arrow, color=colorNo](decNP2)node[anchor=south, xshift=40mm, yshift=1mm]{否（奇）} -| (pRoundUp);
+		\draw[arrow, color=colorYes](decNP2)node[anchor=south, xshift=-40mm, yshift=1mm]{是（偶）} -| (pRoundDown);
+
+		\draw[arrow](pRoundDown) -- (dummy1) |- (end);
+		\draw[arrow](pRoundUp) -- (dummy2) |- (end);
+
+		% dashed line
+		\draw[dashed] (cBankersRound) -- (pBankersRound);
+		\draw[dashed] (expRound2Nth) -- (pRound2Nth);
+		\draw[dashed] (expNoRound) -- (decNP1Zero);
+		\draw[dashed] (expNP1Big) -- (decNP1);
+		\draw[dashed] (expNP1Small) -- (decNP1);
+		\draw[dashed] (expNP1_2_odd) -- (decNP2);
+		\draw[dashed] (expNP1_2_even) -- (decNP2);
+
+	\end{tikzpicture}
