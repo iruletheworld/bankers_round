@@ -305,7 +305,7 @@ discussion.
 explanations, but they can be summarised as the following.
 
 1. Round to (*n*)th decimal place
-1. Multipy the number by 10<sup>n</sup>。
+1. Multipy the number by 10<sup>n</sup>.
 1. If the new number is an integer, then no rounding need. End directly.
 1. If the new number is not an integer, then its decimal part needs to
    be judged.
