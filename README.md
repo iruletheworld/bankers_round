@@ -1,6 +1,6 @@
 [简体中文](#chs) [繁體中文](#cht) [English](#en)
 
-# <a name="chs">LaTex (tikz)转换为图像</a>
+# <a name="chs">四舍六入五留双（银行家数值修约法）</a>
 
 四舍六入五留双是统计学上和金融上常用的一种数值修约方法。它可以保证累计误
 差为最小。它同时也是IEEE 754推荐的方法。它也称作“银行家数值修约法”（不过
@@ -25,7 +25,7 @@
 
 以上逻辑可由下图表述：
 
-![四舍六入五留双的逻辑](./main-5.svg)
+![四舍六入五留双的逻辑](./main-4.svg)
 
 ## 在 Python 中的实现
 
@@ -144,7 +144,7 @@ End Function
 ![四舍六入五留双的逻辑](./bankers_round.gif)
 
 
-# <a name="cht">LaTex (tikz)轉換爲圖像</a>
+# <a name="cht">四捨六入五留雙（銀行家數值修約法）</a>
 
 四捨六入五留雙是統計學上和金融上常用的一種數值修約方法。它可以保證累計誤
 差爲最小。它同時也是IEEE 754推薦的方法。它也稱作“銀行家數值修約法”（不過
@@ -289,28 +289,145 @@ End Function
 
 
 
-# <a name="en">LaTex (tikz) to Images</a>
+# <a name="en">Round Half to Even (Banker's Rounding)</a>
 
-This project is a tutorial about how to perform converting LaTex
-documents directly to images (producing individual images while
-compiling TEX files).
+四舍六入五留双是统计学上和金融上常用的一种数值修约方法。它可以保证累计误
+差为最小。它同时也是IEEE 754推荐的方法。它也称作“银行家数值修约法”（不过
+因为里面的银行家，即Banker，通常是指做银行投资业的人，很少指银行的所有者）。
 
-This tutorial focuses on how to export the embedded pictures produced by
-tikz into individual images of different formats.
+但是此方法和常用的“四舍五入”法差别较大（主要是逻辑判断要多一些），而且常
+用的表格软件的默认留位法和它不同，譬如Excel的默认公式（但VBA的默认是），
+故此在此作些讨论。
 
-This project would discuss the following image formats.
+[中文维基上的解释](https://zh.wikipedia.org/wiki/%E6%95%B0%E5%80%BC%E4%BF%AE%E7%BA%A6)
+还算比较清楚，但可以简化如下：
 
-* SVG (vector)
-* PNG (bitmap)
-* EMF (vector for Windows)
-* EPS (commonly used for publishing in print)
+1. 确定保留至 *n* 位数字。
+1. 将需要留位的数字乘以 10<sup>n</sup>。
+1. 若新数字为整数，则不需要留位，直接结束。
+1. 若新数字不是整数，则判定其小数部分。
+    * 若小数部分小于 0.5，则舍位。
+    * 若小数部分大于 0.5，则进位。
+    * 若小数部分等于 0.5，则需要判断新数字整数部分的奇偶。
+        * 若整数部分为偶，则舍位。
+        * 若整数部分为奇，则进位。
 
-This project aims to provide tutorials and examples for Windows. The
-author believe that Linux users are more than capable of solving this
-issue on their own.
+以上逻辑可由下图表述：
 
-This tutorial would provide guidance for software installations and
-configurations. This tutorial would illustrate via examples.
+![四舍六入五留双的逻辑](./main-6.svg)
 
-This tutorial assumes that the users already have certain degree of
-understanding for LaTex and thus would not discuss LaTex in details.
+## 在 Python 中的实现
+
+虽然 Python 3 自带的“round()”函数所使用的方法就是四舍六入五留双，由于小
+数在计算机中永远只是近似值，得出的结果还是可能会出问题的。可靠的做法是用
+Python 自带的“decimal”模块来实现。在此给出一个例子。
+
+```python
+from decimal import Decimal, ROUND_HALF_EVEN
+
+def banker_round(fIn, strN):
+    '''
+    此函数使用“decimal”模块来实现四舍六入五留双。
+
+    Parameters
+    --------------
+    fIn : float
+        需要留位的数值。
+
+    strN : str
+        留位的格式。
+
+        例：
+        “1.00”为保留两位小数；“1.000”为保留三位小数
+
+    Returns
+    ----------
+    Decimal : Decimal
+        按照输入进行过留位的 Decimal 类型的值。
+    '''
+
+    return Decimal(str(fIn)).quantize(Decimal(strN), ROUND_HALF_EVEN)
+```
+
+## 在 Excel VBA 中的实现
+
+因为 Excel VBA 中默认的留位方法就是四舍六入五留双，用户可能会认为只需要
+直接调用即可。但是，其实这样做在引用单元个时还是可能会出错（直接给数值一
+般不会出错，但 Excel 的强大之处在於单元格的调用，不用就没意思了）。
+
+在此给出一个 VBA 的公共函数，用户可以在 Excel 的图形界面把它当作公式来调
+用。
+
+```vb
+Public Function gsyBankerRound(dblIn As Double, lngN As Long) As Double
+'''This function performs Banker's Rounding.
+'''
+'''Parameters
+'''----------
+'''dblIn:  double
+'''    The number that needs to be rounded.
+'''
+'''lngN: long
+'''    The decimal place to keep.
+'''
+'''Returns
+'''---------
+'''Double : Double
+'''    The rounded number via Banker's Rounding.
+
+    Dim boolIsEven As Boolean
+
+    ' not greater than half
+    Dim boolNGThanHalf As Boolean
+
+    Dim lngExp As Long
+
+    Dim lngTemp As Long
+
+    lngExp = 10 ^ lngN
+
+    lngTemp = 1 * Fix(dblIn * lngExp / 1)
+
+    If (lngTemp Mod 2) = 0 Then
+
+        boolIsEven = True
+
+'        Debug.Print CStr(lngTemp) & " Is Even"
+
+    Else
+
+        boolIsEven = False
+
+        Debug.Print CStr(lngTemp) & " Is Not Even"
+
+    End If
+
+    ' this is equivalent to the MOD formula in the GUI (different from VBA)
+    If Application.WorksheetFunction.Round((dblIn * lngExp - (1 * Fix(dblIn * lngExp / 1))), 2) <= 0.5 Then
+
+        boolNGThanHalf = True
+
+    Else
+
+        boolNGThanHalf = False
+
+    End If
+
+    If (boolIsEven = True) And (boolNGThanHalf = True) Then
+
+        gsyBankerRound = Application.WorksheetFunction.RoundDown(dblIn, lngN)
+
+    Else
+
+        ' common round half up
+        gsyBankerRound = Application.WorksheetFunction.Round(dblIn, lngN)
+
+    End If
+
+End Function
+
+```
+
+以下是在 Excel 中调用以上函数的录屏，请注意与 Excel 的默认公式的比较。
+
+![四舍六入五留双的逻辑](./bankers_round.gif)
